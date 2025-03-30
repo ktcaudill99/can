@@ -1,0 +1,143 @@
+usb to can 
+https://python-can.readthedocs.io/en/master/interfaces/socketcan.html
+https://www.8devices.com/media/products/usb2can/downloads/usb2can_user_guide.pdf
+--------------------------------------
+The cable operates using the socketcan driver in the linux kernel. Ensure the modules are installed:
+
+sudo modprobe can
+sudo modprobe can-raw
+
+Install can-utils for CAN interaction utilities:
+
+sudo apt install can-utils
+
+With the cable connected to the computer and CAN bus (here using 500K bus speed, J1939 is often 250K):
+
+sudo ip link set can0 type can bitrate 500000
+sudo ip link set up can0
+
+At this point, all three red LEDs on the CAN-USB transceiver should light up. If the CAN network is active (such as on a running vehicle), one should be blinking rapidly. Test the connection with:
+
+candump can0
+
+If the output is a scrolling list of CAN messages, then the interface is up and connected to the CAN bus.
+
+
+https://github.com/INNO-MAKER/usb2can
+
+https://illmatics.com/car_hacking.pdf
+
+-------------------------------------------
+http://wiki.inno-maker.com/
+https://github.com/INNO-MAKER/
+
+
+dmesg to get info about usb2can module
+
+sudo ip link set can0 down
+sudo ip link set can0type bitrate 125000
+sudo ip link set can0 up
+
+
+
+
+
+
+--------------------------------
+https://github.com/krumboeck/usb2can
+set-up
+modprobe can_raw
+modprobe can_dev
+insmod usb_8dev.ko
+ip link set can0 up type can bitrate 1000000 sample-point 0.875
+shut-down
+ip link set can0 down
+rmmod usb_8dev
+
+--------------------------------------
+
+# Fuzzing test
+# !!! Dangerous, since this will cause unpredicted consequence to the vehicle
+def fuzz(mode, client_socket):
+    header_cmd = "AT SH 191"
+    inject_message(mode, client_socket, header_cmd)
+
+    # set message id finish
+    # start fuzzing
+
+    fuzz_cmd = "04 00 00" # fuzzing message
+    fuzz_speed = 0.02  # fuzzing speed in seconds
+    for i in range(1000):
+        inject_message(mode, client_socket, fuzz_cmd, 0)
+        time.sleep(fuzz_speed)
+        
+        
+function) inject_message: (mode: Any, client_socket: Any, message: Any, interval: float = 0.5) -> None    
+    
+    
+     # Parameters:
+# mode: 0-Wi-Fi, 1-Bluetooth, 2-BLE
+# client_socket: connection instance (peripheral in BLE)
+# message: data to be sent
+# interval: waiting time limit between write and read operations
+   
+  def inject_message(mode, client_socket, message, interval=0.5):
+    if mode == 0:
+        # Wi-Fi
+        client_socket.send(b"%s\r" % message)
+        time.sleep(interval)
+        data = client_socket.recv(1024)
+        print('Received: ', repr(data))
+    elif mode == 1:
+        # Bluetooth
+        client_socket.send(b"%s\r" % message)
+        time.sleep(interval)
+        data = client_socket.recv(1024)
+        print('Received: ', repr(data))
+    else:
+        # BLE
+        BLE_write_with_response(client_socket, message, interval)  # client_socket is a peripheral instance
+
+-------------------------------------
+https://github.com/linux-can/can-utils/blob/master/include/linux/can.h
+
+----------------------------------------------------------------
+
+
+Search for GMW8762. Many schools should have this for free but maybe not.
+
+For example 0C9 has the engine speed in it. 0E8A * 0.25 is 930.5rpm.
+        
+        
+-------------------------------------------------------
+
+while true; do cansend can0 0C9#8021C0071B101000; sleep 0.002; done
+
+candump can0 | grep " 0C9 " | while read line; do cansend can0 0C9#8021C0071B101000; done
+
+------------------------------------        
+        666#107A3F401FA0
+
+        
+        https://github.com/linux-can/can-utils/blob/master/include/linux/can.h
+        
+
+https://buildmedia.readthedocs.org/media/pdf/python-can/develop/python-can.pdf
+
+
+https://github.com/CaringCaribou/caringcaribou
+
+
+
+
+
+
+
+
+canplayer -I candump-2022-05-03_134623.log
+
+
+
+
+
+
